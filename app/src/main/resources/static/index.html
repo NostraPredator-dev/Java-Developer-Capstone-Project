@@ -102,3 +102,49 @@ and triggers modal-based login functionality.
     * Properly close all opened tags to complete the document structure.
 
  -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Select Your Role</title>
+        <link rel="icon" href="../assets/images/favicon.ico">
+
+        <!-- CSS Files -->
+        <link rel="stylesheet" href="./assets/css/index.css">
+        <link rel="stylesheet" href="./assets/css/style.css">
+
+        <!-- JS Utilities -->
+        <script src="./js/util.js" defer></script>
+        <script src="./js/render.js" defer></script>
+
+        <!-- JS Components -->
+        <script src="./js/components/header.js" defer></script>
+        <script src="./js/components/footer.js" defer></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="wrapper">
+            <div id="header"></div>
+
+            <main class="main-content">
+                <h2>Select Your Role</h2>
+                <button id="adminBtn" onclick="selectRole('admin')">Admin</button>
+                <button id="doctorBtn" onclick="selectRole('doctor')">Doctor</button>
+                <button id="patientBtn" onclick="selectRole('patient')">Patient</button>
+            </main>
+
+            <div id="footer"></div>
+            </div>
+        </div>
+
+        <!-- Hidden Modal -->
+        <div id="modal" class="modal">
+            <span id="closeModal" class="close">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+
+        <!-- Service Script -->
+        <script type="module" src="../js/services/index.js" defer></script>
+    </body>
+</html>

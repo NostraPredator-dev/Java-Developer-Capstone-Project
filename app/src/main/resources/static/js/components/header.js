@@ -123,3 +123,106 @@
   16. **Render the Header**: Finally, the `renderHeader()` function is called to initialize the header rendering process when the page loads.
 */
    
+function renderHeader() {
+  const headerDiv = document.getElementById("header");
+  if (!headerDiv) return;
+
+  // 1. Check if we are on the homepage ("/") → clear storage
+  if (window.location.pathname.endsWith("/")) {
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("token");
+    headerDiv.innerHTML = ""; // no header on home
+    return;
+  }
+
+  // 2. Get role and token from localStorage
+  const role = localStorage.getItem("userRole");
+  const token = localStorage.getItem("token");
+
+  // 3. Handle invalid sessions for role-based pages
+  if ((role === "loggedPatient" || role === "admin" || role === "doctor") && !token) {
+    localStorage.removeItem("userRole");
+    alert("Session expired or invalid login. Please log in again.");
+    window.location.href = "/";
+    return;
+  }
+
+  // 4. Prepare header content
+  let headerContent = "";
+
+  if (role === "admin") {
+    headerContent += `
+      <button id="addDocBtn" class="adminBtn">Add Doctor</button>
+      <a href="#" id="logoutBtn">Logout</a>
+    `;
+  } 
+  else if (role === "doctor") {
+    headerContent += `
+      <a href="/doctorDashboard.html" id="homeBtn">Home</a>
+      <a href="#" id="logoutBtn">Logout</a>
+    `;
+  } 
+  else if (role === "patient") {
+    headerContent += `
+      <a href="/login.html" id="loginBtn">Login</a>
+      <a href="/signup.html" id="signupBtn">Sign Up</a>
+    `;
+  } 
+  else if (role === "loggedPatient") {
+    headerContent += `
+      <a href="/patientDashboard.html" id="homeBtn">Home</a>
+      <a href="/appointments.html" id="appointmentsBtn">Appointments</a>
+      <a href="#" id="logoutPatientBtn">Logout</a>
+    `;
+  }
+
+  // 5. Inject header into the page
+  headerDiv.innerHTML = headerContent;
+
+  // 6. Attach event listeners for dynamically rendered buttons
+  attachHeaderButtonListeners();
+}
+
+/**
+ * Attach click listeners to header buttons after rendering
+ */
+function attachHeaderButtonListeners() {
+  const addDocBtn = document.getElementById("addDocBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const logoutPatientBtn = document.getElementById("logoutPatientBtn");
+
+  if (addDocBtn) {
+    addDocBtn.addEventListener("click", () => {
+      openModal("addDoctor"); // modal function you already have
+    });
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", logout);
+  }
+
+  if (logoutPatientBtn) {
+    logoutPatientBtn.addEventListener("click", logoutPatient);
+  }
+}
+
+/**
+ * Logout for Admin/Doctor → clear all session data
+ */
+function logout() {
+  localStorage.removeItem("userRole");
+  localStorage.removeItem("token");
+  window.location.href = "/";
+}
+
+/**
+ * Logout for Patient → keep them as "patient" to show login/signup again
+ */
+function logoutPatient() {
+  localStorage.removeItem("token");
+  localStorage.setItem("userRole", "patient");
+  window.location.href = "/patientDashboard.html";
+}
+
+// Automatically render the header when the script loads
+document.addEventListener("DOMContentLoaded", renderHeader);

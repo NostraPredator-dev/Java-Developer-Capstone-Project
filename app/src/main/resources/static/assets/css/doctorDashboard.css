@@ -63,3 +63,71 @@
 
 Let me know if you'd like a consolidated style guide for the entire HospitalCRM frontend.
  */
+
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+html, body { 
+    height: 100%; 
+    font-family: Arial, 
+    sans-serif; 
+}
+
+.wrapper { 
+    display: flex; 
+    flex-direction: column; 
+    min-height: 100vh; 
+}
+.main-content { 
+    flex: 1; 
+    padding: 20px; 
+    background: #f4f4f4; 
+}
+
+.controls { 
+    display: flex; 
+    gap: 10px; 
+    margin-bottom: 20px; 
+}
+.controls input, .controls button { 
+    padding: 8px; 
+    border-radius: 5px; 
+    border: 1px solid #ccc; 
+}
+.controls button { 
+    background-color: #017d7e; 
+    color: #fff; 
+    cursor: pointer; 
+}
+.controls button:hover { 
+    background-color: #015c5d; 
+}
+
+#patientTable { 
+    width: 100%; 
+    border-collapse: collapse; 
+    background: #fff; 
+}
+#patientTable th, #patientTable td { 
+    border: 1px solid #ddd; 
+    padding: 10px; 
+    text-align: center; 
+}
+#patientTable thead { 
+    background-color: rgba(1, 125, 126, 0.7); 
+    color: #fff; 
+}
+#patientTable tbody tr:nth-child(even) { 
+    background-color: #f9f9f9; 
+}
+#patientTable tbody tr:hover { 
+    background-color: #eef; 
+}
+
+.noPatientRecord { 
+    text-align: center; 
+    color: gray; 
+    font-style: italic; 
+}

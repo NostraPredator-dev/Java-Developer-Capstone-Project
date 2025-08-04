@@ -99,3 +99,62 @@ This file defines the Doctor Dashboard interface, allowing doctors to view and m
 
     * Properly close the `<body>` and `<html>` tags to complete the document.
  -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Doctor Dashboard</title>
+        <link rel="icon" href="../../assets/images/favicon.ico">
+
+        <!-- CSS Files -->
+        <link rel="stylesheet" href="../../assets/css/adminDashboard.css">
+        <link rel="stylesheet" href="../../assets/css/doctorDashboard.css">
+        <link rel="stylesheet" href="../../assets/css/style.css">
+
+        <!-- JS Utilities -->
+        <script src="../../js/render.js" defer></script>
+        <script src="../../js/util.js" defer></script>
+
+        <!-- Components -->
+        <script src="../../js/components/header.js" defer></script>
+        <script src="../../js/components/footer.js" defer></script>
+        <script src="../../js/components/patientRows.js" defer></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="wrapper">
+                <div id="header"></div>
+
+                <main class="main-content">
+                    <div class="controls">
+                        <input type="text" id="searchBar" placeholder="Search patients..." />
+                        <button id="todayBtn">Today's Appointments</button>
+                        <input type="date" id="dateFilter" />
+                    </div>
+
+                    <table id="patientTable">
+                        <thead>
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Prescription</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientTableBody">
+                            <tr class="noPatientRecord"><td colspan="5">No patient records found.</td></tr>
+                        </tbody>
+                    </table>
+                </main>
+
+                <div id="footer"></div>
+            </div>
+        </div>
+
+        <!-- Dashboard Logic -->
+        <script type="module" src="../../js/services/patientServices.js" defer></script>
+        <script type="module" src="../../js/services/doctorDashboard.js" defer></script>
+    </body>
+</html>

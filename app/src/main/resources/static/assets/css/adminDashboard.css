@@ -92,3 +92,80 @@ Admin Button (`.adminBtn`)
 
 
 */
+
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+html, body { 
+    height: 100%; 
+    font-family: Arial, 
+    sans-serif; 
+}
+
+.wrapper { 
+    display: flex; 
+    flex-direction: column; 
+    min-height: 100vh; 
+}
+.main-content { 
+    flex: 1; 
+    padding: 20px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    background: #f9f9f9;
+}
+
+#searchBar { 
+    width: 50%; 
+    padding: 10px; 
+    margin: 20px 0; 
+    border-radius: 5px; 
+    border: 1px solid #ccc; 
+}
+.filter-wrapper { 
+    display: flex; 
+    gap: 15px; 
+    margin-bottom: 20px; 
+}
+.filter-wrapper select { 
+    padding: 8px; 
+    border-radius: 5px; 
+    border: 1px solid #ccc; 
+}
+
+#content { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 20px; 
+    justify-content: center; 
+}
+
+/* Modal */
+.modal { 
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background-color: rgba(0,0,0,0.6); 
+    justify-content: center; 
+    align-items: center; 
+}
+.modal .close { 
+    position: absolute; 
+    top: 10px; 
+    right: 20px; 
+    color: #fff; 
+    cursor: pointer; 
+    font-size: 2rem; 
+}
+.modal #modal-body { 
+    background: #fff; 
+    padding: 20px; 
+    border-radius: 8px; 
+    min-width: 300px; 
+}
