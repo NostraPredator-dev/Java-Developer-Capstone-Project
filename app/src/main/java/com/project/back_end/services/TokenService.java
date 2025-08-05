@@ -3,9 +3,6 @@ package com.project.back_end.services;
 import com.project.back_end.repo.AdminRepository;
 import com.project.back_end.repo.DoctorRepository;
 import com.project.back_end.repo.PatientRepository;
-import com.project.back_end.models.Admin;
-import com.project.back_end.models.Doctor;
-import com.project.back_end.models.Patient;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -15,7 +12,6 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.Optional;
 
 @Component
 public class TokenService {
@@ -61,30 +57,27 @@ public class TokenService {
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
 
-    // Secret key from application.properties
     @Value("${jwt.secret}")
     private String jwtSecret;
 
     // Expiration: 7 days
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 7;
 
-    public TokenService(AdminRepository adminRepository,
-                        DoctorRepository doctorRepository,
-                        PatientRepository patientRepository) {
+    public TokenService(AdminRepository adminRepository, DoctorRepository doctorRepository, PatientRepository patientRepository) {
         this.adminRepository = adminRepository;
         this.doctorRepository = doctorRepository;
         this.patientRepository = patientRepository;
     }
 
     /**
-     * 1. Generate JWT Token for a given user identifier
+     * 1. Generate JWT Token for a given user identifier (NEW JJWT SYNTAX)
      */
     public String generateToken(String identifier) {
         return Jwts.builder()
-                .setSubject(identifier)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .subject(identifier)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(getSigningKey())
                 .compact();
     }
 
@@ -93,11 +86,11 @@ public class TokenService {
      */
     public String extractIdentifier(String token) {
         try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
+            return Jwts.parser()
+                    .verifyWith(getSigningKey())
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody()
+                    .parseSignedClaims(token)
+                    .getPayload()
                     .getSubject();
         } catch (JwtException e) {
             return null;  // Token invalid or expired
@@ -113,14 +106,11 @@ public class TokenService {
 
         switch (userType.toLowerCase()) {
             case "admin":
-                Admin admin = adminRepository.findByUsername(identifier);
-                return admin != null;
+                return adminRepository.findByUsername(identifier) != null;
             case "doctor":
-                Doctor doctor = doctorRepository.findByEmail(identifier);
-                return doctor != null;
+                return doctorRepository.findByEmail(identifier) != null;
             case "patient":
-                Patient patient = patientRepository.findByEmail(identifier);
-                return patient != null;
+                return patientRepository.findByEmail(identifier) != null;
             default:
                 return false;
         }
@@ -138,7 +128,6 @@ public class TokenService {
      * 5. Extract email from JWT token (for Doctor/Patient)
      */
     public String extractEmailFromToken(String token) {
-        // For Doctor/Patient, the identifier is the email
         return extractIdentifier(token);
     }
 }

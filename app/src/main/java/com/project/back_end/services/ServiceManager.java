@@ -138,17 +138,17 @@ public class ServiceManager {
      */
     public Map<String, Object> filterDoctor(String name, String specialty, String time) {
         if (name != null && specialty != null && time != null) {
-            return doctorService.filterDoctorsByNameSpecilityandTime(name, specialty, time);
+            return doctorService.filterDoctorsByNameSpecialtyAndTime(name, specialty, time);
         } else if (name != null && specialty != null) {
-            return doctorService.filterDoctorByNameAndSpecility(name, specialty);
+            return doctorService.filterDoctorByNameAndSpecialty(name, specialty);
         } else if (name != null && time != null) {
             return doctorService.filterDoctorByNameAndTime(name, time);
         } else if (specialty != null && time != null) {
-            return doctorService.filterDoctorByTimeAndSpecility(specialty, time);
+            return doctorService.filterDoctorByTimeAndSpecialty(specialty, time);
         } else if (name != null) {
             return doctorService.findDoctorByName(name);
         } else if (specialty != null) {
-            return doctorService.filterDoctorBySpecility(specialty);
+            return doctorService.filterDoctorBySpecialty(specialty);
         } else if (time != null) {
             return doctorService.filterDoctorsByTime(time);
         }
@@ -167,7 +167,7 @@ public class ServiceManager {
         }
 
         LocalDate date = appointment.getAppointmentTime().toLocalDate();
-        var availableSlots = doctorService.getDoctorAvailability(appointment.getDoctor().getId(), date);
+        var availableSlots = doctorService.getDoctorAvailability(appointment.getDoctor().getEmail(), date);
 
         String appointmentTimeString = appointment.getAppointmentTime().toLocalTime().toString();
         return availableSlots.contains(appointmentTimeString) ? 1 : 0;

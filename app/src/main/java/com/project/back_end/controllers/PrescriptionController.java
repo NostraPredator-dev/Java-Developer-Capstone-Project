@@ -50,42 +50,25 @@ public class PrescriptionController {
      * 1. Save Prescription (Doctor Only)
      */
     @PostMapping("/{token}")
-    public ResponseEntity<?> savePrescription(@PathVariable String token,
-                                              @RequestBody Prescription prescription) {
+    public ResponseEntity<?> savePrescription(@PathVariable String token, @RequestBody Prescription prescription) {
         // Validate token for doctor role
         if (!tokenService.validateToken(token, "doctor")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid or unauthorized token."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or unauthorized token."));
         }
 
-        boolean saved = prescriptionService.savePrescription(prescription);
-        if (saved) {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(Map.of("message", "Prescription saved successfully."));
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Failed to save prescription."));
-        }
+        return prescriptionService.savePrescription(prescription);
     }
 
     /**
      * 2. Get Prescription by Appointment ID (Doctor Only)
      */
     @GetMapping("/{appointmentId}/{token}")
-    public ResponseEntity<?> getPrescription(@PathVariable Long appointmentId,
-                                             @PathVariable String token) {
+    public ResponseEntity<?> getPrescription(@PathVariable Long appointmentId, @PathVariable String token) {
         // Validate token for doctor role
         if (!tokenService.validateToken(token, "doctor")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid or unauthorized token."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or unauthorized token."));
         }
 
-        Prescription prescription = prescriptionService.getPrescription(appointmentId);
-        if (prescription != null) {
-            return ResponseEntity.ok(prescription);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "No prescription found for this appointment."));
-        }
+        return prescriptionService.getPrescription(appointmentId);
     }
 }

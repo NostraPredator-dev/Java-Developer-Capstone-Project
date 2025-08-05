@@ -1,7 +1,6 @@
 package com.project.back_end.controllers;
 
 import com.project.back_end.models.Patient;
-import com.project.back_end.models.Appointment;
 import com.project.back_end.services.PatientService;
 import com.project.back_end.services.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -70,12 +68,10 @@ public class PatientController {
     @GetMapping("/{token}")
     public ResponseEntity<?> getPatientDetails(@PathVariable String token) {
         if (!tokenService.validateToken(token, "patient")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid or unauthorized token."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or unauthorized token."));
         }
 
-        Patient patient = patientService.getPatientDetails(tokenService.extractPatientIdFromToken(token));
-        return ResponseEntity.ok(patient);
+        return patientService.getPatientDetails(token);
     }
 
     /**
@@ -103,37 +99,38 @@ public class PatientController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> patientLogin(@RequestBody Map<String, String> login) {
         // login contains "email" and "password"
-        return tokenService.validatePatientLogin(login);
+        return patientService.validatePatientLogin(login);
     }
 
     /**
      * 4. Get Patient Appointments
      */
     @GetMapping("/{id}/{token}")
-    public ResponseEntity<?> getPatientAppointments(@PathVariable Long id,
-                                                    @PathVariable String token) {
+    public ResponseEntity<?> getPatientAppointments(@PathVariable Long id, @PathVariable String token) {
         if (!tokenService.validateToken(token, "patient")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid or unauthorized token."));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or unauthorized token."));
         }
 
-        List<Appointment> appointments = patientService.getPatientAppointment(id);
-        return ResponseEntity.ok(Map.of("appointments", appointments));
+        return patientService.getPatientAppointment(id, token);
     }
 
     /**
      * 5. Filter Patient Appointments
      */
     @GetMapping("/filter/{condition}/{name}/{token}")
-    public ResponseEntity<?> filterPatientAppointments(@PathVariable String condition,
-                                                       @PathVariable String name,
-                                                       @PathVariable String token) {
+    public ResponseEntity<?> filterPatientAppointments(@PathVariable String condition, @PathVariable String name, @PathVariable String token) {
         if (!tokenService.validateToken(token, "patient")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid or unauthorized token."));
         }
 
-        List<Appointment> filteredAppointments = tokenService.filterPatient(condition, name, token);
-        return ResponseEntity.ok(Map.of("filteredAppointments", filteredAppointments));
+        ResponseEntity<?> patientResponse = patientService.getPatientDetails(token);
+        if (!patientResponse.getStatusCode().is2xxSuccessful() || !(patientResponse.getBody() instanceof Patient)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Patient not found."));
+        }
+
+        Patient patient = (Patient) patientResponse.getBody();
+        return patientService.filterByDoctorAndCondition(condition, name, patient.getId());
     }
 }

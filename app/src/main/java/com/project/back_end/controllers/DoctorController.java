@@ -66,7 +66,7 @@ public class DoctorController {
 
     // 9. Define the `filter` Method:
     //    - Handles HTTP GET requests to filter doctors based on name, time, and specialty.
-    //    - Accepts `name`, `time`, and `speciality` as path variables.
+    //    - Accepts `name`, `time`, and `specialty` as path variables.
     //    - Calls the shared `Service` to perform filtering logic and returns matching doctors in the response.
 
     @Autowired
@@ -79,17 +79,15 @@ public class DoctorController {
      * 1. Get Doctor Availability
      */
     @GetMapping("/availability/{user}/{doctorId}/{date}/{token}")
-    public ResponseEntity<?> getDoctorAvailability(@PathVariable String user,
-                                                   @PathVariable Long doctorId,
-                                                   @PathVariable String date,
-                                                   @PathVariable String token) {
+    public ResponseEntity<?> getDoctorAvailability(@PathVariable String user, @PathVariable Long doctorId, @PathVariable String date, @PathVariable String token) {
         // Validate token for the given role
         if (!tokenService.validateToken(token, user)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid or unauthorized token."));
         }
 
-        List<String> availability = doctorService.getDoctorAvailability(doctorId, LocalDate.parse(date));
+        String doctorEmail = tokenService.extractEmailFromToken(token);
+        List<String> availability = doctorService.getDoctorAvailability(doctorEmail, LocalDate.parse(date));
         return ResponseEntity.ok(Map.of("availability", availability));
     }
 
@@ -187,11 +185,9 @@ public class DoctorController {
     /**
      * 7. Filter Doctors
      */
-    @GetMapping("/filter/{name}/{time}/{speciality}")
-    public ResponseEntity<?> filterDoctors(@PathVariable String name,
-                                           @PathVariable String time,
-                                           @PathVariable String speciality) {
-        List<Doctor> filteredDoctors = tokenService.filterDoctor(name, time, speciality);
-        return ResponseEntity.ok(Map.of("filteredDoctors", filteredDoctors));
+    @GetMapping("/filter/{name}/{time}/{specialty}")
+    public ResponseEntity<?> filterDoctors(@PathVariable String name, @PathVariable String time, @PathVariable String specialty) {
+        Map<String, Object> result = doctorService.filterDoctorsByNameSpecialtyAndTime(name, specialty, time);
+        return ResponseEntity.ok(result);
     }
 }

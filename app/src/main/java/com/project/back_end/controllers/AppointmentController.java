@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -77,7 +76,7 @@ public class AppointmentController {
 
         // Fetch appointments
         LocalDate appointmentDate = LocalDate.parse(date);
-        List<Appointment> appointments = appointmentService.getAppointments(appointmentDate, patientName);
+        Map<String, Object> appointments = appointmentService.getAppointment(patientName, appointmentDate, token);
         return ResponseEntity.ok(appointments);
     }
 
@@ -85,8 +84,7 @@ public class AppointmentController {
      * POST - Book an appointment (Patient access only)
      */
     @PostMapping("/{token}")
-    public ResponseEntity<?> bookAppointment(@PathVariable String token,
-                                             @RequestBody Appointment appointment) {
+    public ResponseEntity<?> bookAppointment(@PathVariable String token, @RequestBody Appointment appointment) {
         // Validate token for patient role
         if (!tokenService.validateToken(token, "patient")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -94,7 +92,7 @@ public class AppointmentController {
         }
 
         // Validate appointment details
-        if (!tokenService.validateAppointment(appointment)) {
+        if (!appointmentService.validateAppointment(appointment)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Invalid appointment details."));
         }
@@ -121,13 +119,7 @@ public class AppointmentController {
                     .body(Map.of("error", "Invalid or unauthorized token."));
         }
 
-        boolean updated = appointmentService.updateAppointment(appointment);
-        if (updated) {
-            return ResponseEntity.ok(Map.of("message", "Appointment updated successfully!"));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Appointment not found or update failed."));
-        }
+        return appointmentService.updateAppointment(appointment);
     }
 
     /**
@@ -142,12 +134,6 @@ public class AppointmentController {
                     .body(Map.of("error", "Invalid or unauthorized token."));
         }
 
-        boolean cancelled = appointmentService.cancelAppointment(id);
-        if (cancelled) {
-            return ResponseEntity.ok(Map.of("message", "Appointment cancelled successfully!"));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Appointment not found or cancellation failed."));
-        }
+        return appointmentService.cancelAppointment(id, token);
     }
 }

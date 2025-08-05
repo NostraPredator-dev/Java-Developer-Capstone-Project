@@ -90,7 +90,33 @@ public class PatientService {
     }
 
     /**
-     * 2. Retrieve appointments for a specific patient (token authorization)
+     * 2. Validate patient login
+     */
+    public ResponseEntity<Map<String, String>> validatePatientLogin(Map<String, String> login) {
+        String email = login.get("email");
+        String password = login.get("password");
+        Map<String, String> response = new HashMap<>();
+
+        if (email == null || password == null) {
+            response.put("error", "Email and password are required.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        Patient patient = patientRepository.findByEmail(email);
+        if (patient == null || !patient.getPassword().equals(password)) {
+            response.put("error", "Invalid email or password.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        // Generate JWT token using TokenService
+        String token = tokenService.generateToken(email);
+        response.put("token", token);
+        response.put("message", "Login successful.");
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 3. Retrieve appointments for a specific patient (token authorization)
      */
     public ResponseEntity<Map<String, Object>> getPatientAppointment(Long id, String token) {
         Map<String, Object> response = new HashMap<>();
@@ -114,7 +140,7 @@ public class PatientService {
     }
 
     /**
-     * 3. Filter appointments by condition (past/future)
+     * 4. Filter appointments by condition (past/future)
      */
     public ResponseEntity<Map<String, Object>> filterByCondition(String condition, Long id) {
         Map<String, Object> response = new HashMap<>();
@@ -138,7 +164,7 @@ public class PatientService {
     }
 
     /**
-     * 4. Filter appointments by doctor name
+     * 5. Filter appointments by doctor name
      */
     public ResponseEntity<Map<String, Object>> filterByDoctor(String name, Long patientId) {
         Map<String, Object> response = new HashMap<>();
@@ -153,7 +179,7 @@ public class PatientService {
     }
 
     /**
-     * 5. Filter appointments by doctor name and condition (past/future)
+     * 6. Filter appointments by doctor name and condition (past/future)
      */
     public ResponseEntity<Map<String, Object>> filterByDoctorAndCondition(String condition, String name, long patientId) {
         Map<String, Object> response = new HashMap<>();
@@ -180,7 +206,7 @@ public class PatientService {
     }
 
     /**
-     * 6. Get patient details using token
+     * 7. Get patient details using token
      */
     public ResponseEntity<Map<String, Object>> getPatientDetails(String token) {
         Map<String, Object> response = new HashMap<>();

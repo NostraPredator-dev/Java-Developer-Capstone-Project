@@ -67,7 +67,7 @@ public class DoctorService {
     //    - Instruction: Ensure that available times are eagerly loaded for the doctors.
 
 
-    // 11. **filterDoctorsByNameSpecilityandTime Method**:
+    // 11. **filterDoctorsByNameSpecialtyAndTime Method**:
     //    - Filters doctors based on their name, specialty, and availability during a specific time (AM/PM).
     //    - The method fetches doctors matching the name and specialty criteria, then filters them based on their availability during the specified time period.
     //    - Instruction: Ensure proper filtering based on both the name and specialty as well as the specified time period.
@@ -83,18 +83,18 @@ public class DoctorService {
     //    - Fetches doctors based on partial name matching and filters the results to include only those available during the specified time period.
     //    - Instruction: Ensure that the method correctly filters doctors based on the given name and time of day (AM/PM).
 
-    // 14. **filterDoctorByNameAndSpecility Method**:
+    // 14. **filterDoctorByNameAndSpecialty Method**:
     //    - Filters doctors by name and specialty.
     //    - It ensures that the resulting list of doctors matches both the name (case-insensitive) and the specified specialty.
     //    - Instruction: Ensure that both name and specialty are considered when filtering doctors.
 
 
-    // 15. **filterDoctorByTimeAndSpecility Method**:
+    // 15. **filterDoctorByTimeAndSpecialty Method**:
     //    - Filters doctors based on their specialty and availability during a specific time period (AM/PM).
     //    - Fetches doctors based on the specified specialty and filters them based on their available time slots for AM/PM.
     //    - Instruction: Ensure the time filtering is accurately applied based on the given specialty and time period (AM/PM).
 
-    // 16. **filterDoctorBySpecility Method**:
+    // 16. **filterDoctorBySpecialty Method**:
     //    - Filters doctors based on their specialty.
     //    - This method fetches all doctors matching the specified specialty and returns them.
     //    - Instruction: Make sure the filtering logic works for case-insensitive specialty matching.
@@ -114,7 +114,33 @@ public class DoctorService {
     private TokenService tokenService;
 
     /**
-     * 1. Fetch available slots for a specific doctor on a given date
+     * 1. Validate Doctor Login
+     */
+    public ResponseEntity<Map<String, String>> validateDoctor(Map<String, String> login) {
+        String email = login.get("email");
+        String password = login.get("password");
+        Map<String, String> response = new HashMap<>();
+
+        if (email == null || password == null) {
+            response.put("error", "Email and password are required.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        Doctor doctor = doctorRepository.findByEmail(email);
+        if (doctor == null || !doctor.getPassword().equals(password)) {
+            response.put("error", "Invalid email or password.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        // Generate JWT token using TokenService
+        String token = tokenService.generateToken(email);
+        response.put("token", token);
+        response.put("message", "Login successful.");
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 2. Fetch available slots for a specific doctor on a given date
      */
     public List<String> getDoctorAvailability(String doctorEmail, LocalDate date) {
         List<String> availableSlots = new ArrayList<>(Arrays.asList(
@@ -144,7 +170,7 @@ public class DoctorService {
     }
 
     /**
-     * 2. Save a new doctor
+     * 3. Save a new doctor
      */
     public int saveDoctor(Doctor doctor) {
         try {
@@ -160,7 +186,7 @@ public class DoctorService {
     }
 
     /**
-     * 3. Update an existing doctor
+     * 4. Update an existing doctor
      */
     public int updateDoctor(Doctor doctor) {
         try {
@@ -177,14 +203,14 @@ public class DoctorService {
     }
 
     /**
-     * 4. Get all doctors
+     * 5. Get all doctors
      */
     public List<Doctor> getDoctors() {
         return doctorRepository.findAll();
     }
 
     /**
-     * 5. Delete doctor by ID (also deletes related appointments)
+     * 6. Delete doctor by ID (also deletes related appointments)
      */
     public int deleteDoctor(long id) {
         try {
@@ -205,7 +231,7 @@ public class DoctorService {
     }
 
     /**
-     * 6. Validate doctor login credentials
+     * 7. Validate doctor login credentials
      */
     public ResponseEntity<Map<String, String>> validateDoctor(Login login) {
         Map<String, String> response = new HashMap<>();
@@ -225,7 +251,7 @@ public class DoctorService {
     }
 
     /**
-     * 7. Find doctors by partial name
+     * 8. Find doctors by partial name
      */
     public Map<String, Object> findDoctorByName(String name) {
         Map<String, Object> response = new HashMap<>();
@@ -234,9 +260,9 @@ public class DoctorService {
     }
 
     /**
-     * 8. Filter doctors by name, specialty, and availability during AM/PM
+     * 9. Filter doctors by name, specialty, and availability during AM/PM
      */
-    public Map<String, Object> filterDoctorsByNameSpecilityandTime(String name, String specialty, String amOrPm) {
+    public Map<String, Object> filterDoctorsByNameSpecialtyAndTime(String name, String specialty, String amOrPm) {
         Map<String, Object> response = new HashMap<>();
         List<Doctor> doctors = doctorRepository.findByNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name, specialty);
         response.put("doctors", filterDoctorByTime(doctors, amOrPm));
@@ -244,7 +270,7 @@ public class DoctorService {
     }
 
     /**
-     * 9. Filter doctors by name and time
+     * 10. Filter doctors by name and time
      */
     public Map<String, Object> filterDoctorByNameAndTime(String name, String amOrPm) {
         Map<String, Object> response = new HashMap<>();
@@ -254,9 +280,9 @@ public class DoctorService {
     }
 
     /**
-     * 10. Filter doctors by name and specialty
+     * 11. Filter doctors by name and specialty
      */
-    public Map<String, Object> filterDoctorByNameAndSpecility(String name, String specialty) {
+    public Map<String, Object> filterDoctorByNameAndSpecialty(String name, String specialty) {
         Map<String, Object> response = new HashMap<>();
         response.put("doctors",
                 doctorRepository.findByNameContainingIgnoreCaseAndSpecialtyIgnoreCase(name, specialty));
@@ -264,9 +290,9 @@ public class DoctorService {
     }
 
     /**
-     * 11. Filter doctors by specialty and time
+     * 12. Filter doctors by specialty and time
      */
-    public Map<String, Object> filterDoctorByTimeAndSpecility(String specialty, String amOrPm) {
+    public Map<String, Object> filterDoctorByTimeAndSpecialty(String specialty, String amOrPm) {
         Map<String, Object> response = new HashMap<>();
         List<Doctor> doctors = doctorRepository.findBySpecialtyIgnoreCase(specialty);
         response.put("doctors", filterDoctorByTime(doctors, amOrPm));
@@ -274,16 +300,16 @@ public class DoctorService {
     }
 
     /**
-     * 12. Filter doctors by specialty
+     * 13. Filter doctors by specialty
      */
-    public Map<String, Object> filterDoctorBySpecility(String specialty) {
+    public Map<String, Object> filterDoctorBySpecialty(String specialty) {
         Map<String, Object> response = new HashMap<>();
         response.put("doctors", doctorRepository.findBySpecialtyIgnoreCase(specialty));
         return response;
     }
 
     /**
-     * 13. Filter all doctors by availability in AM/PM
+     * 14. Filter all doctors by availability in AM/PM
      */
     public Map<String, Object> filterDoctorsByTime(String amOrPm) {
         Map<String, Object> response = new HashMap<>();
@@ -293,7 +319,7 @@ public class DoctorService {
     }
 
     /**
-     * 14. Private method to filter doctors by time slot (AM/PM)
+     * 15. Private method to filter doctors by time slot (AM/PM)
      */
     private List<Doctor> filterDoctorByTime(List<Doctor> doctors, String amOrPm) {
         if (amOrPm == null || doctors == null) return Collections.emptyList();

@@ -63,13 +63,13 @@ public class AppointmentService {
     /**
      * 1. Book a new appointment
      */
-    public int bookAppointment(Appointment appointment) {
+    public boolean bookAppointment(Appointment appointment) {
         try {
             appointmentRepository.save(appointment);
-            return 1; // Success
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
-            return 0; // Failure
+            return false;
         }
     }
 
@@ -158,5 +158,17 @@ public class AppointmentService {
 
         response.put("appointments", appointments);
         return response;
+    }
+
+    /**
+     * 5. Validate appointment details
+     */
+    public boolean validateAppointment(Appointment appointment) {
+        if (appointment == null) return false;
+        if (appointment.getDoctor() == null || appointment.getPatient() == null) return false;
+        if (appointment.getAppointmentDate() == null || appointment.getAppointmentTime() == null) return false;
+        if (appointment.getAppointmentDate().isBefore(LocalDate.now())) return false;
+        // Add more business rules as needed (e.g., check for valid time slots, etc.)
+        return true;
     }
 }
